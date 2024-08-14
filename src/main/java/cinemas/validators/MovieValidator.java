@@ -1,62 +1,35 @@
-package cinemas.models;
+package cinemas.validators;
 
-import cinemas.converters.ZonedDateTimeConverter;
 import cinemas.enums.MovieStatus;
-import cinemas.models.common.SoftDeletableEntity;
-import jakarta.persistence.*;
+import cinemas.models.Genre;
+import cinemas.models.Movie;
+import cinemas.validators.constraints.NotEmptyList;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Set;
 
-@Entity
-@Table(name = "movies")
-public class Movie extends SoftDeletableEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
+public class MovieValidator {
+    private String titleVn;
+    private String titleEn;
+    private String languageVn;
+    private String languageEn;
+    private String descriptionVn;
+    private String descriptionEn;
+    @NotNull
+    private ZonedDateTime releaseDate;
+    private int runningTime; // minutes
+    private int ageLimit;
     private String director;
     private String cast;
-    @Column(name = "title_vn")
-    private String titleVn;
-    @Column(name = "title_en")
-    private String titleEn;
-    @Column(name = "language_vn")
-    private String languageVn;
-    @Column(name = "language_en")
-    private String languageEn;
-    @Lob
-    @Column(name = "description_vn")
-    private String descriptionVn;
-    @Lob
-    @Column(name = "description_en")
-    private String descriptionEn;
-    @Convert(converter = ZonedDateTimeConverter.class)
-    @Column(name = "release_date")
-    private ZonedDateTime releaseDate;
-    @Column(name = "running_time")
-    private Integer runningTime; // minutes
+    @NotNull
+    private MovieStatus status;
     private String trailer;
-    @Column(name = "age_limit")
-    private Integer ageLimit = 0; // Example: '18' is for age >= 18
-    @Column(name = "photo_url")
-    private String photoUrl;
-    @Enumerated(EnumType.ORDINAL)
-    private MovieStatus status = MovieStatus.COMING_SOON; // 0 = coming soon, 1 = now showing, 2 = end showing
-    @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-    @JoinTable(name = "movie_genres",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id"))
-    private Set<Genre> genres;
-
-    // Getters and Setters
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    private MultipartFile photo;
+    @NotEmptyList
+    private List<Genre> genres;
 
     public String getDirector() {
         return director;
@@ -130,12 +103,28 @@ public class Movie extends SoftDeletableEntity {
         this.releaseDate = releaseDate;
     }
 
-    public Integer getRunningTime() {
+    public int getRunningTime() {
         return runningTime;
     }
 
-    public void setRunningTime(Integer runningTime) {
+    public void setRunningTime(int runningTime) {
         this.runningTime = runningTime;
+    }
+
+    public int getAgeLimit() {
+        return ageLimit;
+    }
+
+    public void setAgeLimit(int ageLimit) {
+        this.ageLimit = ageLimit;
+    }
+
+    public MovieStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MovieStatus status) {
+        this.status = status;
     }
 
     public String getTrailer() {
@@ -146,33 +135,38 @@ public class Movie extends SoftDeletableEntity {
         this.trailer = trailer;
     }
 
-    public Integer getAgeLimit() {
-        return ageLimit;
+    public MultipartFile getPhoto() {
+        return photo;
     }
 
-    public void setAgeLimit(Integer ageLimit) {
-        this.ageLimit = ageLimit;
+    public void setPhoto(MultipartFile photo) {
+        this.photo = photo;
     }
 
-    public Set<Genre> getGenres() {
+    public List<Genre> getGenres() {
         return genres;
     }
 
-    public void setGenres(Set<Genre> genres) {
+    public void setGenres(List<Genre> genres) {
         this.genres = genres;
     }
 
-    public String getPhotoUrl() {
-        return photoUrl;
-    }
-    public MovieStatus getStatus() {
-        return status;
-    }
-    public void setStatus(MovieStatus status) {
-        this.status = status;
-    }
-
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
+    public Movie toMovie() {
+        Movie movie = new Movie();
+        movie.setDirector(director);
+        movie.setCast(cast);
+        movie.setTitleVn(titleVn);
+        movie.setTitleEn(titleEn);
+        movie.setLanguageVn(languageVn);
+        movie.setLanguageEn(languageEn);
+        movie.setDescriptionVn(descriptionVn);
+        movie.setDescriptionEn(descriptionEn);
+        movie.setReleaseDate(releaseDate);
+        movie.setRunningTime(runningTime);
+        movie.setAgeLimit(ageLimit);
+        movie.setStatus(status);
+        movie.setTrailer(trailer);
+        movie.setGenres(Set.copyOf(genres));
+        return movie;
     }
 }
