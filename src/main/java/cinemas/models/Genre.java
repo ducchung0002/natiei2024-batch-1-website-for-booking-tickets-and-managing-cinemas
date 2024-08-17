@@ -3,6 +3,7 @@ package cinemas.models;
 import cinemas.models.common.CreationUpdationAuditableEntity;
 import jakarta.persistence.*;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -16,8 +17,7 @@ public class Genre extends CreationUpdationAuditableEntity {
     private String nameVn;
     @Column(name = "name_en")
     private String nameEn;
-    @ManyToMany
-    @JoinTable(name = "movie_genres", joinColumns = @JoinColumn(name = "genre_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    @ManyToMany(mappedBy = "genres")
     private Set<Movie> movies;
 
     // Getters and Setters
@@ -43,5 +43,25 @@ public class Genre extends CreationUpdationAuditableEntity {
 
     public void setNameEn(String nameEn) {
         this.nameEn = nameEn;
+    }
+
+    public Set<Movie> getMovies() {
+        return movies;
+    }
+
+    public void setMovies(Set<Movie> movies) {
+        this.movies = movies;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Genre genre = (Genre) o;
+        return Objects.equals(id, genre.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
